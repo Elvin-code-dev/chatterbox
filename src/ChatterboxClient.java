@@ -304,8 +304,15 @@ public class ChatterboxClient {
         // throw new UnsupportedOperationException(
         // "Chat streaming not yet implemented. Implement streamChat() and remove this
         // exception!");
-        printIncomingChats();
 
+        // Start two threads:
+        // - one that runs printIncomingChats()
+        Thread incomingThread = new Thread(() -> printIncomingChats());
+        incomingThread.start();
+
+        // - one that runs sendOutgoingChats()
+        Thread outgoingThread = new Thread(() -> sendOutgoingChats());
+        outgoingThread.start();
     }
 
     /**
@@ -374,6 +381,32 @@ public class ChatterboxClient {
         // Use the userInput to read, NOT System.in directly
         // loop forever reading user input
         // write to serverOutput
+        // flush after each write
+        while (true) {
+            // check if there is a next line from the user
+            if (userInput.hasNextLine()) {
+                // read the line
+                String msg = userInput.nextLine();
+                // try to send it to the server
+                try {
+                    // write the message to the server
+                    serverWriter.write(msg);
+                    // add a new line
+                    serverWriter.newLine();
+                    // flush to make sure the data is sent
+                    serverWriter.flush();
+                } catch (IOException e) { // if we get an exception we treat it as a disconnect
+                    try {
+                        // notify the user that the connection is lost and we are exiting
+                        userOutput.write("Connection lost. Exiting.\n".getBytes());
+                        userOutput.flush();
+                    } catch (IOException ex) {
+                        // do nothing since we are exiting anyway
+                    }
+                    System.exit(0);
+                }
+            }
+        }
     }
 
     public String getHost() {
