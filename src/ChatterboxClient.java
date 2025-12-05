@@ -180,10 +180,18 @@ public class ChatterboxClient {
         this.userInput = new Scanner(userInput, StandardCharsets.UTF_8);
         this.userOutput = userOutput;
 
-        throw new UnsupportedOperationException(
-                "Constructor not yet implemented. Implement ChatterboxClient constructor and remove this exception");
+        // throw new UnsupportedOperationException(
+        // "Constructor not yet implemented. Implement ChatterboxClient constructor and
+        // remove this exception");
         // TODO: copy options.getHost(), getPort(), getUsername(), getPassword() into
         // fields
+
+        // what we did here is store the values from the options object into the fields
+        this.host = options.getHost();
+        this.port = options.getPort();
+        this.username = options.getUsername();
+        this.password = options.getPassword();
+
     }
 
     /**
