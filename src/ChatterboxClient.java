@@ -301,8 +301,11 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException(
-                "Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        // throw new UnsupportedOperationException(
+        // "Chat streaming not yet implemented. Implement streamChat() and remove this
+        // exception!");
+        printIncomingChats();
+
     }
 
     /**
@@ -322,6 +325,37 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+
+        // here i will read from the server and write to the user output
+        try {
+            // loop forever reading from the server
+            while (true) {
+                // read a line from the server
+                String line = serverReader.readLine();
+
+                // check if the line is null meaning the server disconnected
+                if (line == null) {
+                    // if so we notify the user and exit
+                    // the get bytes is to convert the string to bytes
+                    userOutput.write("Server disconnected. \n".getBytes());
+                    // flush to make sure the data is sent
+                    userOutput.flush();
+                    // exit the program
+                    System.exit(0);
+                }
+                // if we are here it means we got a valid line so we write it to the user output
+                userOutput.write((line + "\n").getBytes());
+                userOutput.flush();
+            }
+        } catch (IOException e) { // if we get an exception we treat it as a disconnect
+            try { // this is just in case writing to user output fails
+                userOutput.write("Connection lost. Exiting.\n".getBytes());
+                userOutput.flush();
+            } catch (IOException ex) { // we have the catch
+                // here we intentionally do nothing since we are already exiting anyway
+            }
+            System.exit(0);
+        }
     }
 
     /**
